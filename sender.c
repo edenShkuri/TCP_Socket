@@ -3,10 +3,26 @@
 #include <string.h>
 #include <arpa/inet.h> 
 #include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
 
+
+#define SIZE 1024
 #define SERVER_PORT 1064
 #define SERVER_IP_ADDRESS "127.0.0.1"
 
+void send_file(FILE *fp, int sockfd){
+  int n;
+  char data[SIZE] = {0};
+
+  while(fgets(data, SIZE, fp) != NULL) {
+    if (send(sockfd, data, sizeof(data), 0) == -1) {
+      perror("Error in sending file.");
+      return;
+    }
+    bzero(data, SIZE);
+  }
+}
 
 int main()
 {
@@ -25,30 +41,26 @@ if(rval<=0){
     return -1;
 }
 
-
 int c = connect(sock, (struct sockaddr *) &server_address, sizeof(server_address)); 
 if(c == -1){
     printf("ERR! - invalid connection");
     return -1;
 }   
-printf("You are connect to the amazing server!\n");
+printf("You are connect to the amazing server!\n\n");
 
-char msg[] ="Yosef is the man!";
-int msgLen = strlen(msg);
+FILE *fp;
+char *filename = "1mb.txt";
 
-int reallySent = send(sock,msg,msgLen,0);
+for(int i=1; i<=5; i++){
+fp = fopen(filename, "r");
+  if (fp == NULL) {
+    perror("Error in reading file.");
+    return -1;
+  }
 
-if(reallySent == -1){
-    printf("ERR! - nothing has been sent!\n");
-}
-else if (reallySent < msgLen){
-    printf("ERR! - there is bytes there not sent!\n");
-    printf("SENT: %d, FULL MESSAGE: %d\n",reallySent,msgLen);
-}
-else{
-    printf("Message was successfully sent.\n");
-    printf("Message that sent:\n");
-    printf("%s\n",msg);
+send_file(fp, sock);
+printf("File data number %d sent successfully.\n", i);
+
 }
 
 sleep(3);
