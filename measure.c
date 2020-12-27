@@ -98,7 +98,10 @@ double TotalTime;
             printf("the avg for Cubic is %lf ms\n\n", (sumCubic/5.0));
             
         if(i==11)  
+	{
                 printf("the avg for Reno is %lf ms\n\n", (sumReno/5.0));
+		break;
+	}
     }
 
     close(listeningSocket);
